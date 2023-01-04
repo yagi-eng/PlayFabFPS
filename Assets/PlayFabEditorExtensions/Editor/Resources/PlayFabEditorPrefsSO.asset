@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d0199c11aa6f514784c5c69cd8378d8, type: 3}
   m_Name: PlayFabEditorPrefsSO
   m_EditorClassIdentifier: 
-  DevAccountEmail: f.kohei.yaginuma@gmail.com
-  DevAccountToken: qaj4uo37rfgmdcm5ohkeyb1djgzoe8coatdguys6t31eqqpcp5rhjjmar5txg7js8a6dsbhefqkhs4a75zs1df8yytpwuzdwke86ijkhj4wqxzi1sbodkz47jx6g5gmqtrqmxd335k98xhq36rdgt18anassw1aqfz8c6f99psmuzpta9gzwna5aehhz1dqkxtsjzri3
-  SelectedStudio: My Game Studio
+  DevAccountEmail: yaginuma@astran.jp
+  DevAccountToken: ce4sybmza88z1cjt3znf7hqemiz594k47whzumagxebhmi5iure9o6wmjjhpdzhff4p9oyj9b4twht1gibm5i4tfzhg6je7dzfxzg6aoxjc6j56wbhmh547g73u4rcckfi34issncsbz8tgrb8eknk1fm88zibzmtundxjjis9wk9qaris16o4n7ofxkofd379xfhary
+  SelectedStudio: Astran
   SdkPath: Assets/PlayFabSDK
   EdExPath: 
   LocalCloudScriptPath: 
