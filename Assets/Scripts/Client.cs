@@ -4,6 +4,8 @@ using UnityEngine;
 using System;
 using Unity.Networking.Transport;
 using Unity.FPS.AI;
+using PlayFab.MultiplayerModels;
+using PlayFab;
 
 public class Client : MonoBehaviour
 {
@@ -16,6 +18,25 @@ public class Client : MonoBehaviour
     private byte[] enemyStatus;
     private bool startedConnectionRequest = false;
     private bool isConnected = false;
+
+    private void RequestMultiplayerServer()
+    {
+        RequestMultiplayerServerRequest requestData = new RequestMultiplayerServerRequest();
+        requestData.BuildId = ""; // Build ID from the Multiplayer Dashboard
+        requestData.PreferredRegions = new List<string>() { "EastUs" };
+        requestData.SessionId = System.Guid.NewGuid().ToString(); // Generate a Session ID
+        PlayFabMultiplayerAPI.RequestMultiplayerServer(requestData, OnRequestMultiplayerServer, OnRequestMultiplayerServerError);
+    }
+
+    private void OnRequestMultiplayerServer(RequestMultiplayerServerResponse response)
+    {
+        connectToServer(response.IPV4Address, (ushort)response.Ports[0].Num);
+    }
+
+    private void OnRequestMultiplayerServerError(PlayFabError error)
+    {
+        Debug.Log(error.ErrorMessage);
+    }
 
     private void connectToServer(string address, ushort port)
     {
@@ -59,7 +80,7 @@ public class Client : MonoBehaviour
         }
         else
         {
-            // TODO: Start from PlayFab configuration
+            RequestMultiplayerServer();
         }
     }
 

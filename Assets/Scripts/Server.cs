@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using Unity.Collections;
 using Unity.Networking.Transport;
+using PlayFab;
 
 public class Server : MonoBehaviour
 {
@@ -14,6 +15,52 @@ public class Server : MonoBehaviour
     private byte[] enemyStatus;
     private int numPlayers = 0;
 
+    IEnumerator ReadyForPlayers()
+    {
+        yield return new WaitForSeconds(.5f);
+        PlayFabMultiplayerAgentAPI.ReadyForPlayers();
+    }
+
+    private void OnServerActive()
+    {
+        StartServer();
+    }
+
+    private void OnAgentError(string error)
+    {
+        Debug.Log(error);
+    }
+
+    private void OnShutdown()
+    {
+        Debug.Log("Server is shutting down");
+        networkDriver.Dispose();
+        connections.Dispose();
+        StartCoroutine(Shutdown());
+    }
+
+    IEnumerator Shutdown()
+    {
+        yield return new WaitForSeconds(5f);
+        Application.Quit();
+    }
+
+    private void OnMaintenance(DateTime? NextScheduledMaintenanceUtc)
+    {
+        Debug.LogFormat("Maintenance scheduled for: {0}", NextScheduledMaintenanceUtc.Value.ToLongDateString());
+    }
+
+    void StartPlayFabAPI()
+    {
+        PlayFabMultiplayerAgentAPI.Start();
+        PlayFabMultiplayerAgentAPI.OnMaintenanceCallback += OnMaintenance;
+        PlayFabMultiplayerAgentAPI.OnShutDownCallback += OnShutdown;
+        PlayFabMultiplayerAgentAPI.OnServerActiveCallback += OnServerActive;
+        PlayFabMultiplayerAgentAPI.OnAgentErrorCallback += OnAgentError;
+
+        StartCoroutine(ReadyForPlayers());
+    }
+
     void StartServer()
     {
         Debug.Log("Starting Server");
@@ -22,6 +69,16 @@ public class Server : MonoBehaviour
         networkDriver = NetworkDriver.Create();
         var endpoint = NetworkEndPoint.AnyIpv4;
         endpoint.Port = 7777;
+        var connectionInfo = PlayFabMultiplayerAgentAPI.GetGameServerConnectionInfo();
+        if (connectionInfo != null)
+        {
+            // Set the server to the first available port
+            foreach (var port in connectionInfo.GamePortsConfiguration)
+            {
+                endpoint.Port = (ushort)port.ServerListeningPort;
+                break;
+            }
+        }
         if (networkDriver.Bind(endpoint) != 0)
         {
             Debug.Log("Failed to bind to port " + endpoint.Port);
@@ -39,6 +96,7 @@ public class Server : MonoBehaviour
             enemyStatus[i] = 1;
         }
     }
+
     void OnDestroy()
     {
         networkDriver.Dispose();
@@ -54,7 +112,7 @@ public class Server : MonoBehaviour
         }
         else
         {
-            // TODO: Start from PlayFab configuration
+            StartPlayFabAPI();
         }
     }
 
@@ -113,6 +171,11 @@ public class Server : MonoBehaviour
                     Debug.Log("Client disconnected from server");
                     connections[i] = default(NetworkConnection);
                     numPlayers--;
+                    if (numPlayers == 0)
+                    {
+                        // All players are gone, shutdown
+                        OnShutdown();
+                    }
                 }
             }
 
