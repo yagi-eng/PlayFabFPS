@@ -19,14 +19,17 @@ public class Client : MonoBehaviour
     private bool startedConnectionRequest = false;
     private bool isConnected = false;
 
-    private void RequestMultiplayerServer()
-    {
-        RequestMultiplayerServerRequest requestData = new RequestMultiplayerServerRequest();
-        requestData.BuildId = ""; // Build ID from the Multiplayer Dashboard
-        requestData.PreferredRegions = new List<string>() { "EastUs" };
-        requestData.SessionId = System.Guid.NewGuid().ToString(); // Generate a Session ID
-        PlayFabMultiplayerAPI.RequestMultiplayerServer(requestData, OnRequestMultiplayerServer, OnRequestMultiplayerServerError);
-    }
+    static public string matchAddress = "";
+    static public ushort matchPort = 0;
+
+    // private void RequestMultiplayerServer()
+    // {
+    //     RequestMultiplayerServerRequest requestData = new RequestMultiplayerServerRequest();
+    //     requestData.BuildId = ""; // Build ID from the Multiplayer Dashboard
+    //     requestData.PreferredRegions = new List<string>() { "EastUs" };
+    //     requestData.SessionId = System.Guid.NewGuid().ToString(); // Generate a Session ID
+    //     PlayFabMultiplayerAPI.RequestMultiplayerServer(requestData, OnRequestMultiplayerServer, OnRequestMultiplayerServerError);
+    // }
 
     private void OnRequestMultiplayerServer(RequestMultiplayerServerResponse response)
     {
@@ -80,7 +83,7 @@ public class Client : MonoBehaviour
         }
         else
         {
-            RequestMultiplayerServer();
+            connectToServer(matchAddress, matchPort);
         }
     }
 
