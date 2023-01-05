@@ -77,6 +77,7 @@ public class PlayFabCode : MonoBehaviour
     {
         ErrorMessage.text = "";
         RequestMatchmaking();
+        SetDisplayNameForUser(Username.text);
     }
 
     private void OnLoginFailure(PlayFabError error)
@@ -213,6 +214,26 @@ public class PlayFabCode : MonoBehaviour
 
 
     private void OnGetMatchError(PlayFabError error)
+    {
+        Debug.Log(error.ErrorMessage);
+    }
+
+    private void SetDisplayNameForUser(string name)
+    {
+        UpdateUserTitleDisplayNameRequest requestData = new UpdateUserTitleDisplayNameRequest()
+        {
+            DisplayName = name
+        };
+        PlayFabClientAPI.UpdateUserTitleDisplayName(requestData, OnSetDisplayNameForUserResult, OnSetDisplayNameForUserError);
+    }
+
+    private void OnSetDisplayNameForUserResult(UpdateUserTitleDisplayNameResult response)
+    {
+
+
+    }
+
+    private void OnSetDisplayNameForUserError(PlayFabError error)
     {
         Debug.Log(error.ErrorMessage);
     }

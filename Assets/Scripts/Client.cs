@@ -4,8 +4,9 @@ using UnityEngine;
 using System;
 using Unity.Networking.Transport;
 using Unity.FPS.AI;
-using PlayFab.MultiplayerModels;
 using PlayFab;
+using PlayFab.MultiplayerModels;
+using PlayFab.ClientModels;
 
 public class Client : MonoBehaviour
 {
@@ -71,6 +72,53 @@ public class Client : MonoBehaviour
     public void OnDestroy()
     {
         networkDriver.Dispose();
+    }
+
+    private void ReportStatBotDestroyed()
+    {
+        UpdatePlayerStatisticsRequest requestData = new UpdatePlayerStatisticsRequest()
+        {
+            Statistics = new List<StatisticUpdate>() {
+            new StatisticUpdate() { StatisticName = "Bot's destroyed", Value = 1 }
+        }
+        };
+        PlayFabClientAPI.UpdatePlayerStatistics(requestData, OnReportStatBotDestroyedResult, OnReportStatBotDestroyedError);
+    }
+
+
+    private void OnReportStatBotDestroyedResult(UpdatePlayerStatisticsResult response)
+    {
+        // Successfully Reported
+    }
+
+
+    private void OnReportStatBotDestroyedError(PlayFabError error)
+    {
+        Debug.Log(error.ErrorMessage);
+    }
+
+    private void GetLeaderboardData()
+    {
+        GetLeaderboardRequest requestData = new GetLeaderboardRequest()
+        {
+            StatisticName = "Bot's destroyed",
+            StartPosition = 0,
+            MaxResultsCount = 100,
+        };
+        PlayFabClientAPI.GetLeaderboard(requestData, OnGetLeaderboardDataResult, OnGetLeaderboardDataError);
+    }
+
+    private void OnGetLeaderboardDataResult(GetLeaderboardResult response)
+    {
+        foreach (var entry in response.Leaderboard)
+        {
+            Debug.Log(entry.Position + ". " + entry.DisplayName + " : " + entry.StatValue);
+        }
+    }
+
+    private void OnGetLeaderboardDataError(PlayFabError error)
+    {
+        Debug.Log(error.ErrorMessage);
     }
 
     // Start is called before the first frame update
@@ -161,6 +209,7 @@ public class Client : MonoBehaviour
                 (enemies[i] == null || !enemies[i].activeSelf))
             {
                 enemyStatus[i] = 0;
+                ReportStatBotDestroyed();
             }
         }
 
